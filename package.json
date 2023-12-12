@@ -1,0 +1,38 @@
+{
+  "name": "jingheqianghuamoni",
+  "version": "1.0.0",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "engines": {
+    "node": ">=14.18.0 || >= 16.10.0"
+  },
+  "license": "MIT",
+  "scripts": {
+    "start": "skr dev",
+    "build": "skr build --clean",
+    "analyze": "npm run build -- --analyze --build-target=stable",
+    "lint": "skr lint",
+    "lint-staged": "skr lint --staged --fix --auto-stage",
+    "test": "skr test --target=react"
+  },
+  "dependencies": {
+    "core-js": "^3.34.0",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0"
+  },
+  "devDependencies": {
+    "@reskript/cli": "6.0.3",
+    "@reskript/cli-build": "6.0.3",
+    "@reskript/cli-dev": "6.0.3",
+    "@reskript/cli-lint": "6.0.3",
+    "@reskript/config-lint": "6.0.3",
+    "@reskript/settings": "6.0.3",
+    "@types/react": "^18.2.43",
+    "@types/react-dom": "^18.2.17",
+    "eslint": "^8.55.0",
+    "husky": "^8.0.3",
+    "stylelint": "^16.0.2",
+    "typescript": "^5.3.3",
+    "vite": "^5.0.7"
+  }
+}
