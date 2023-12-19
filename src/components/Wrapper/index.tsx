@@ -111,7 +111,6 @@ export function Wrapper() {
                                 key={Math.random()}
                                 style={{
                                     border: '1px solid #000',
-                                    height: '40px',
                                     lineHeight: '40px',
                                     padding: '0 20px',
                                     marginBottom: '4px',
