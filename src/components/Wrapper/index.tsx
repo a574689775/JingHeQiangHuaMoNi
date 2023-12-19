@@ -10,7 +10,9 @@ export function Wrapper() {
     const scrollRef: any = useRef(null);
     const [loading, setLoading] = useState(false);
     // 强化历史记录
-    const [historyList, setHistoryList] = useState([<div key={Math.random()}>这里会存放强化历史记录</div>]);
+    const [historyList, setHistoryList] = useState(
+        [<div key={Math.random()} style={{padding: '0 20px', border: '1px solid #000'}}>暂无强化记录</div>]
+    );
     // 当前强化等级
     const [level, setLevel] = useState(10);
     // 当前强化等级的装备信息
@@ -23,6 +25,8 @@ export function Wrapper() {
     const [purpleCost, setPurpleCost] = useState(equipInfo.purpleMeterialCount);
     // 已消耗稀有零件数
     const [pinkCost, setPinkCost] = useState(equipInfo.pinkMeterialCount);
+    // 当前选择的提升概率道具
+    const [catalyst, setCatalyst] = useState('none' as any);
     // 已冲击的失败记录 用于模拟保底
     const [failList, setFailList] = useState([] as number[]);
 
@@ -42,6 +46,12 @@ export function Wrapper() {
         setLoading(true);
         // 模拟延时
         setTimeout(() => {
+
+            // 用卷子强化完清空提升概率道具
+            if (catalyst.startsWith('+')) {
+                setCatalyst('none');
+            }
+
             // 消耗金币数、材料对应增加
             setCost(cost + equipInfo.coin);
             setWhiteCost(whiteCost + equipInfo.whiteMeterialCount);
@@ -51,44 +61,51 @@ export function Wrapper() {
             // 保底机制增加的概率
             const addRatio = getRatioAdded(level, failList);
 
-            // 根据概率获取强化结果 成功或者失败
-            const result = strengthen(equipInfo.successRatio + addRatio);
+            // 选择道具增加的概率
+            const catalystRatio = catalyst.startsWith('+')
+                ? 100
+                : catalyst === 'none' ? 0 : catalyst === 'big' ? 7 : 4;
 
-            // 记录强化历史
-            // eslint-disable-next-line max-len
-            setHistoryList([
-                ...historyList,
-                <div key={Math.random()}>
-                    <span><span style={{color: '#108cee'}}>强化</span>【影·极黑之蒂亚+{level}】</span>
-                    <span style={{marginRight: '12px', color: result ? 'green' : 'red'}}>{result ? '成功' : '失败'}</span>
-                    <span style={{marginRight: '12px'}}>
-                        已消耗：<span style={{color: 'gold'}}>金币</span>【{cost.toLocaleString()}】
-                    </span>
-                    <span style={{marginRight: '12px'}}>普通材料【{whiteCost}个】</span>
-                    <span style={{marginRight: '12px'}}>
-                        <span style={{color: 'purple'}}>高级材料</span>【{purpleCost}个】
-                    </span>
-                    <span style={{marginRight: '12px'}}><span style={{color: 'pink'}}>稀有材料</span>【{pinkCost}个】</span>
-                </div>,
-            ]);
+            // 根据概率获取强化结果 成功或者失败
+            const result = strengthen(equipInfo.successRatio + addRatio + catalystRatio);
 
             // 更新强化等级和保底记录
             if (result) {
-                setLevel(level + 1);
+                setLevel(level => (catalyst.startsWith('+') ? Number(catalyst.split('+')[1]) : level + 1));
                 // 强化成功了 删除比当前等级小的失败记录
                 const newFailList = failList.filter(item => item > level);
                 setFailList(newFailList);
             } else {
             // 强化失败了就记录在失败列表里
                 setFailList([...failList, level]);
-                if (level === 10) {
-                    setLoading(false);
-                    return;
-                }
-                setLevel(level - 1);
+                setLevel(level === 10 ? 10 : level - 1);
             }
+
+            // 记录强化历史
+            // eslint-disable-next-line max-len
+            setHistoryList([
+                ...historyList,
+                <div
+                    key={Math.random()}
+                    style={{border: `1px solid ${result ? '#a0d911' : '#f5222d'}`, padding: '0 20px', fontWeight: 600}}
+                >
+                    <span style={{marginRight: '8px'}}>
+                        已消耗：<span style={{color: '#faad14'}}>金币</span>【{cost.toLocaleString()}】
+                    </span>
+                    <span style={{marginRight: '8px'}}>
+                        <span style={{color: '#1677ff'}}>普通材料</span>【{whiteCost}个】
+                    </span>
+                    <span style={{marginRight: '8px'}}>
+                        <span style={{color: '#722ed1'}}>高级材料</span>【{purpleCost}个】
+                    </span>
+                    <span style={{marginRight: '8px'}}>
+                        <span style={{color: '#eb2f96'}}>稀有材料</span>【{pinkCost}个】
+                    </span>
+                </div>,
+            ]);
+
             setLoading(false);
-        }, 500);
+        }, 1000);
 
 
     }
@@ -110,10 +127,8 @@ export function Wrapper() {
                             <div
                                 key={Math.random()}
                                 style={{
-                                    border: '1px solid #000',
                                     lineHeight: '40px',
-                                    padding: '0 20px',
-                                    marginBottom: '4px',
+                                    marginBottom: '12px',
                                 }}
                             >
                                 {item}
@@ -156,20 +171,28 @@ export function Wrapper() {
                     <div style={{marginTop: '20px'}}>强化属性</div>
                     <div style={{display: 'flex'}}>
                         <div style={{marginRight: '160px'}}>破防物攻</div>
-                        <div>2428<CaretRightOutlined style={{margin: '0 20px'}} />3010</div>
+                        <div>{level * 100}<CaretRightOutlined style={{margin: '0 20px'}} />{(level + 1) * 100}</div>
                     </div>
                     <div style={{display: 'flex'}}>
                         <div style={{marginRight: '160px'}}>破防魔攻</div>
-                        <div>2428<CaretRightOutlined style={{margin: '0 20px'}} />3010</div>
+                        <div>{level * 100}<CaretRightOutlined style={{margin: '0 20px'}} />{(level + 1) * 100}</div>
                     </div>
                     <div style={{marginTop: '50px', display: 'flex', justifyContent: 'space-around'}}>
                         <Material type="white" total={99999} need={equipInfo.whiteMeterialCount} />
                         <Material type="purple" total={99999} need={equipInfo.purpleMeterialCount} />
-                        <Catalyst />
+                        <Catalyst catalyst={catalyst} setCatalyst={setCatalyst} level={level} />
                     </div>
                     <div style={{marginTop: '50px', paddingLeft: '50px'}}>
                         <div style={{fontSize: '16px'}}>
-                            {equipInfo.successRatio}%成功率<span style={{color: 'orange'}}>(若失败，强化等级 - 1)</span>
+                            {
+                                catalyst.startsWith('+')
+                                    ? 100
+                                    : catalyst === 'none'
+                                        ? equipInfo.successRatio
+                                        : equipInfo.successRatio + (catalyst === 'big' ? 7 : 4)
+                            }
+                            %成功率
+                            <span style={{color: 'orange'}}>(若失败，强化等级 - 1)</span>
                         </div>
                         {/* eslint-disable-next-line react/jsx-no-bind */}
                         <Button

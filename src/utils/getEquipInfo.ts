@@ -57,6 +57,16 @@ export function getEquipInfo(level: number) {
             };
             break;
         }
+        case 15: {
+            equipInfo = {
+                'coin': 220000,
+                'successRatio': 20,
+                'whiteMeterialCount': 32,
+                'purpleMeterialCount': 11,
+                'pinkMeterialCount': 0,
+            };
+            break;
+        }
     }
 
     return equipInfo;
