@@ -45,7 +45,7 @@ export default function App() {
                 <Wrapper />
             </Content>
             <Footer style={{textAlign: 'center', backgroundColor: '#fff'}}>
-                Version：V1.0.0&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;更新时间：2023-12-19&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;版权所有：橙子
+                Version：V 1.0.1&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;更新时间：2023-12-19&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;版权所有：橙子
             </Footer>
         </Layout>
 
