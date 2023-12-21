@@ -2,7 +2,7 @@
 
 interface MaterialProps {
     type: 'white' | 'purple' | 'pink';
-    total: number;
+    total: number | string;
     need: number;
 }
 
@@ -25,7 +25,7 @@ export function Material({type, total, need}: MaterialProps) {
             >
                 {type === 'white' ? '普通零件' : type === 'purple' ? '高级零件' : '稀有零件'}
             </div>
-            <div>{total}/{need}</div>
+            <div>{total} / {need}</div>
         </div>
     );
 }
