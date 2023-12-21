@@ -90,9 +90,9 @@ export function Wrapper() {
             if (repairRes) { // 修复成功
                 if (repairProgress + 1 === equipInfo.star) { // 修复完成
                     setIsBreak(false);
-                    setFailList([]); // 修复成功后清空失败记录
+                    setFixFailList([]); // 修复成功后清空失败记录
                 } else { // 修复未完成
-                    setFailList(failList => failList.filter(item => item > repairProgress)); // 删除比当前修复等级小的失败记录(重置保底)
+                    setFixFailList(failList => failList.filter(item => item > repairProgress)); // 删除比当前修复等级小的失败记录(重置保底)
                     setRepairProgress(repairProgress + 1); // 修复进度+1
                 }
             } else { // 修复失败
