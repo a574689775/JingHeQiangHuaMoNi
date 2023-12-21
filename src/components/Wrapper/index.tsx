@@ -1,13 +1,14 @@
 /* eslint-disable react/jsx-no-bind */
 /* eslint-disable max-len */
 import {useState, useRef, useEffect} from 'react';
-import {Button, Card} from 'antd';
+import {Button, Card, Rate} from 'antd';
 import {CaretRightOutlined} from '@ant-design/icons';
 import {Material} from '@/components/Material';
 import {Catalyst} from '@/components/Catalyst';
-import {getEquipInfo, strengthen} from '@/utils';
+import {getEquipInfo, strengthen, repair} from '@/utils';
 import {HistoryItem} from './HistoryItem';
 
+// eslint-disable-next-line complexity
 export function Wrapper() {
 
     const scrollRef: any = useRef(null);
@@ -33,13 +34,18 @@ export function Wrapper() {
     const [catalyst, setCatalyst] = useState('none' as any);
     // 已冲击的失败记录 用于模拟保底
     const [failList, setFailList] = useState([] as number[]);
+    // 修复失败记录 用于模拟保底
+    const [fixFailList, setFixFailList] = useState([] as number[]);
     // 账号总流金
-    const [totalFlowGold, setTotalFlowGold] = useState(50000000000);
+    const [totalFlowGold, setTotalFlowGold] = useState(5000000000);
     // 账号总绑金
-    const [totalBindGold, setTotalBindGold] = useState(50000000000);
+    const [totalBindGold, setTotalBindGold] = useState(5000000000);
     // 延迟函数
     const delay = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
-
+    // 当前装备是否破损
+    const [isBreak, setIsBreak] = useState(false);
+    // 当前装备修复进度
+    const [repairProgress, setRepairProgress] = useState(0);
 
     // 当子元素更新后，滚动到底部
     useEffect(
@@ -52,6 +58,7 @@ export function Wrapper() {
         [historyList]
     );
 
+    // eslint-disable-next-line max-statements
     async function handleClick() {
         setLoading(() => true);
         await delay(1000);
@@ -77,33 +84,62 @@ export function Wrapper() {
         setTotalFlowGold(totalFlowGold => (totalBindGold < equipInfo.coin ? totalFlowGold - equipInfo.coin + totalBindGold : totalFlowGold));
         setTotalBindGold(totalBindGold => (totalBindGold < equipInfo.coin ? 0 : totalBindGold - equipInfo.coin));
 
+        // 破损的装备走修复
+        if (isBreak) {
+            const repairRes = repair(repairProgress, catalyst, fixFailList);
+            if (repairRes) { // 修复成功
+                if (repairProgress + 1 === equipInfo.star) { // 修复完成
+                    setIsBreak(false);
+                    setFailList([]); // 修复成功后清空失败记录
+                } else { // 修复未完成
+                    setFailList(failList => failList.filter(item => item > repairProgress)); // 删除比当前修复等级小的失败记录(重置保底)
+                    setRepairProgress(repairProgress + 1); // 修复进度+1
+                }
+            } else { // 修复失败
+                setFixFailList(fixFailList => [...fixFailList, repairProgress]); // 记录修复保底
+                setRepairProgress(0); // 修复进度为0
+            }
+
+            // 记录修复历史
+            setHistoryList(historyList => [
+                ...historyList,
+                <HistoryItem key={Math.random()} type="fix" successFlag={repairRes} cost={newCost} whiteCost={newWhiteCost} purpleCost={newPurpleCost} pinkCost={newPinkCost} usedCatalystList={newUsedCatalystList} />,
+            ]);
+
+            setLoading(() => false);
+            return;
+        }
+
+        // 先来一锤子
         const successFlag = strengthen(level, equipInfo, catalyst, failList);
 
-        // 更新强化等级和保底记录
-        if (successFlag) {
-            setLevel(level => (catalyst.startsWith('+') ? Number(catalyst.split('+')[1]) : level + 1));
-            // 强化成功了 删除比当前等级小的失败记录
-            setFailList(failList => failList.filter(item => item > level));
-        } else {
-            // 强化失败了就记录在失败列表里
-            setFailList(failList => [...failList, level]);
-            setLevel(level => (level === 10 ? 10 : level - 1));
+        if (successFlag) {// 成功逻辑
+            setLevel(level => (catalyst.startsWith('+') ? Number(catalyst.split('+')[1]) : level + 1)); // 强化等级+1（用了卷子就变成卷子等级）
+            setFailList(failList => failList.filter(item => item > level)); // 删除比当前等级小的失败记录(重置保底)
+        } else {// 失败逻辑
+            setFailList(failList => [...failList, level]); // 记录强化保底记录
+            if (level > 14) {
+                setIsBreak(true); // 装备破损
+                setRepairProgress(0); // 修复进度为0
+            } else {
+                setLevel(level => (level === 10 ? 10 : level - 1));
+            }
         }
 
         // 记录强化历史
-        // eslint-disable-next-line max-len
         setHistoryList(historyList => [
             ...historyList,
             <HistoryItem key={Math.random()} successFlag={successFlag} cost={newCost} whiteCost={newWhiteCost} purpleCost={newPurpleCost} pinkCost={newPinkCost} usedCatalystList={newUsedCatalystList} />,
         ]);
+
 
         setLoading(() => false);
     }
 
     return (
         <Card style={{height: '100%'}}>
-            <div style={{display: 'flex'}}>
-                <div ref={scrollRef} style={{width: 'calc(100% - 400px)', paddingRight: '80px', overflowY: 'auto', height: 'calc(100vh - 192px)'}}>
+            <div style={{display: 'flex', gap: '40px'}}>
+                <div ref={scrollRef} style={{width: 'calc(100% - 400px)', paddingRight: '40px', overflowY: 'auto', height: 'calc(100vh - 192px)'}}>
                     {
                         historyList.map(item => (
                             <div key={Math.random()} style={{lineHeight: '24px', marginBottom: '12px'}}>
@@ -120,11 +156,19 @@ export function Wrapper() {
                     <div style={{fontSize: '28px', height: '80px', display: 'flex', alignItems: 'center', justifyContent: 'center', border: '1px solid #000', marginTop: '40px', fontWeight: 600}}>
                         影·极黑之蒂亚 +{level}
                     </div>
-                    <div style={{display: 'flex', marginTop: '40px', alignItems: 'center', justifyContent: 'center', fontSize: '16px'}}>
-                        <div>{level}</div>
-                        <CaretRightOutlined style={{margin: '0 20px'}} />
-                        <div>{level + 1}</div>
-                    </div>
+                    {
+                        isBreak ? (
+                            <div style={{display: 'flex', marginTop: '40px', alignItems: 'center', justifyContent: 'center'}}>
+                                <Rate disabled value={repairProgress} count={equipInfo.star} />
+                            </div>
+                        ) : (
+                            <div style={{display: 'flex', marginTop: '40px', alignItems: 'center', justifyContent: 'center', fontSize: '16px'}}>
+                                <div>{level}</div>
+                                <CaretRightOutlined style={{margin: '0 20px'}} />
+                                <div>{level + 1}</div>
+                            </div>
+                        )
+                    }
                     <div style={{marginTop: '40px'}}>强化属性</div>
                     <div style={{display: 'flex'}}>
                         <div style={{marginRight: '160px'}}>破防物攻</div>
@@ -144,18 +188,20 @@ export function Wrapper() {
                             {
                                 catalyst.startsWith('+')
                                     ? 100
-                                    : catalyst === 'none' ? equipInfo.successRatio : equipInfo.successRatio + (catalyst === 'big' ? 7 : 4)
+                                    : catalyst === 'none'
+                                        ? isBreak ? 20 : equipInfo.successRatio
+                                        : (isBreak ? 20 : equipInfo.successRatio) + (catalyst === 'big' ? 7 : 4)
                             }
                             %成功率
-                            <span style={{color: 'orange'}}>(若失败，强化等级 - 1)</span>
+                            <span style={{color: 'orange'}}>(若失败，{isBreak ? '修复进度清空' : level > 14 ? '装备破损' : '强化等级 - 1'})</span>
                         </div>
                         <Button
                             type="primary"
                             style={{width: '300px', height: '60px', backgroundColor: '#ff6440', fontSize: '20px', fontWeight: 500}}
                             onClick={handleClick}
-                            disabled={level === 15 || loading || totalFlowGold < equipInfo.coin}
+                            disabled={level === 25 || loading || totalFlowGold < equipInfo.coin}
                         >
-                            {`${totalFlowGold < equipInfo.coin ? '金币不足' : '强化'}（${equipInfo.coin.toLocaleString()}）`}
+                            {`${totalFlowGold < equipInfo.coin ? '金币不足' : isBreak ? '修复一次' : '强化'}（${equipInfo.coin.toLocaleString()}）`}
                         </Button>
                     </div>
                 </div>
