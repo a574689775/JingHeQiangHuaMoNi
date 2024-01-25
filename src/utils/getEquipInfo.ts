@@ -97,7 +97,7 @@ export function getEquipInfo(level: number) {
         }
         case 18: {
             equipInfo = {
-                'coin': 250000,
+                'coin': 270000,
                 'successRatio': 12,
                 'whiteMeterialCount': 0,
                 'purpleMeterialCount': 14,
@@ -108,7 +108,7 @@ export function getEquipInfo(level: number) {
         }
         case 19: {
             equipInfo = {
-                'coin': 260000,
+                'coin': 280000,
                 'successRatio': 11,
                 'whiteMeterialCount': 0,
                 'purpleMeterialCount': 15,
@@ -119,10 +119,10 @@ export function getEquipInfo(level: number) {
         }
         case 20: {
             equipInfo = {
-                'coin': 270000,
+                'coin': 290000,
                 'successRatio': 10,
                 'whiteMeterialCount': 0,
-                'purpleMeterialCount': 16,
+                'purpleMeterialCount': 17,
                 'pinkMeterialCount': 3,
                 'star': 5,
             };
@@ -130,44 +130,44 @@ export function getEquipInfo(level: number) {
         }
         case 21: {
             equipInfo = {
-                'coin': 280000,
+                'coin': 350000,
                 'successRatio': 9,
                 'whiteMeterialCount': 0,
-                'purpleMeterialCount': 17,
-                'pinkMeterialCount': 4,
+                'purpleMeterialCount': 20,
+                'pinkMeterialCount': 5,
                 'star': 5,
             };
             break;
         }
         case 22: {
             equipInfo = {
-                'coin': 290000,
+                'coin': 460000,
                 'successRatio': 8,
                 'whiteMeterialCount': 0,
-                'purpleMeterialCount': 18,
-                'pinkMeterialCount': 5,
+                'purpleMeterialCount': 25,
+                'pinkMeterialCount': 7,
                 'star': 6,
             };
             break;
         }
         case 23: {
             equipInfo = {
-                'coin': 300000,
+                'coin': 850000,
                 'successRatio': 7,
                 'whiteMeterialCount': 0,
-                'purpleMeterialCount': 19,
-                'pinkMeterialCount': 6,
+                'purpleMeterialCount': 35,
+                'pinkMeterialCount': 10,
                 'star': 6,
             };
             break;
         }
         case 24: {
             equipInfo = {
-                'coin': 310000,
+                'coin': 1600000,
                 'successRatio': 6,
                 'whiteMeterialCount': 0,
-                'purpleMeterialCount': 20,
-                'pinkMeterialCount': 7,
+                'purpleMeterialCount': 50,
+                'pinkMeterialCount': 15,
                 'star': 6,
             };
             break;

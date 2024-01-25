@@ -3,6 +3,7 @@ import {Layout, Menu} from 'antd';
 import type {MenuProps} from 'antd';
 import {RiseOutlined, FireOutlined} from '@ant-design/icons';
 import {Wrapper} from '@/components/Wrapper';
+import {Auto} from '../Auto';
 
 const {Footer, Content} = Layout;
 
@@ -42,12 +43,12 @@ export default function App() {
                 items={items}
                 theme="dark"
             />
-            <Content style={{padding: '14px', backgroundColor: '#f0f2f5'}}>
-                <Wrapper />
+            <Content style={{padding: '14px', backgroundColor: '#f0f2f5', overflowY: 'auto'}}>
+                {current === '1' ? <Wrapper /> : <Auto />}
             </Content>
             {/* eslint-disable-next-line max-len */}
             <Footer style={{textAlign: 'center', backgroundColor: '#fff'}}>
-                Version：V 1.1.1&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;更新时间：2023-12-21&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;版权所有：帅B橙子
+                Version：V 1.2.0&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;更新时间：2024-1-25&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;版权所有：帅B橙子
             </Footer>
         </Layout>
 
